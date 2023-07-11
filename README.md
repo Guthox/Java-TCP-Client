@@ -1,2 +1,4 @@
 # Java TCP Client
- Simple TCP client socket in Java. Use for examples.
+ Simple TCP client socket in Java.
+
+ Just compile or use release .jar to run.
