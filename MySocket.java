@@ -1,6 +1,5 @@
 import java.net.Socket;
 import java.io.PrintWriter;
-import java.io.OutputStream;
 
 public class MySocket {
     

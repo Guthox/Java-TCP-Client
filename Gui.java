@@ -7,13 +7,11 @@ import javax.swing.JPanel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
-import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.Container;
 import java.awt.FlowLayout;
-import java.awt.BorderLayout;;
+import java.awt.BorderLayout;
 
 public class Gui extends JFrame implements ActionListener{
     
