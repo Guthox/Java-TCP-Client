@@ -5,28 +5,49 @@ public class MySocket {
     
     private String ip;
     private int port;
+    private Socket socket;
+    private PrintWriter pw;
 
     // CONSTRUCTORS
     public MySocket(String ip){
+        socket = null;
         setIp(ip);
         setPort(9100);
     }
 
     public MySocket(String ip, int port){
+        socket = null;
         setIp(ip);
         setPort(port);
     }
 
     // Create a socket
-    private Socket connect() throws Exception{
-        return new Socket(getIp(), getPort());
+    private boolean connect() {
+        try{
+            this.socket = new Socket(getIp(), getPort());
+            return true;
+        }catch (Exception e){
+            return false;
+        }
     } 
 
+    public void disconnect() throws Exception{
+        this.socket.close();
+    }
+
     // Send data to socket
-    public boolean sendData(String data){
-        try(Socket socket = connect()){
-            PrintWriter pw = new PrintWriter(socket.getOutputStream(), true);
-            pw.println(data);
+    public boolean sendData(String data, boolean keepConn){
+        try{
+            if (this.socket == null || this.socket.isClosed()){
+                if (connect() == false){
+                    return false;
+                }
+                this.pw = new PrintWriter(socket.getOutputStream(), true);
+            }
+            this.pw.println(data);
+            if (keepConn == false){
+                disconnect();
+            }
             return true;
         }catch (Exception e){
             return false;

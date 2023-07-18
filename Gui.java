@@ -6,6 +6,7 @@ import javax.swing.JTextField;
 import javax.swing.JPanel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JCheckBox;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,12 +21,18 @@ public class Gui extends JFrame implements ActionListener{
     private JTextField tfIp;
     private JTextField tfPort;
 
+    private JCheckBox cbKeepConn;
+
     private JTextArea taData;
     private JScrollPane scroll;
     private JButton btSend;
 
+    private MySocket socket;
+
     public Gui(){
         super("TCP Client");
+
+        this.socket = null;
 
         initComponents();
         Container container = getContentPane();
@@ -37,6 +44,7 @@ public class Gui extends JFrame implements ActionListener{
         north.add(lbPort);
         north.add(tfPort);
         north.add(btSend);
+        north.add(cbKeepConn);
 
         container.add(north, BorderLayout.NORTH);
         
@@ -51,12 +59,26 @@ public class Gui extends JFrame implements ActionListener{
 
     }
 
+    // Button action
     public void actionPerformed(ActionEvent e){
         if (e.getSource() == btSend){
             try{
-                MySocket socket = new MySocket(tfIp.getText(), Integer.parseInt(tfPort.getText()));
-                socket.sendData(taData.getText());
+                // If socket don't exist or ip has changed or port has change
+                if (this.socket == null ||
+                this.socket.getIp().equals(tfIp.getText()) == false || 
+                this.socket.getPort() != Integer.parseInt(tfPort.getText()))
+                {
+                    // disconnect if there is a connection
+                    if (this.socket != null){
+                        this.socket.disconnect();
+                    }
+                    // create a new connection
+                    this.socket = new MySocket(tfIp.getText(), Integer.parseInt(tfPort.getText()));
+                }
+                // Send data
+                this.socket.sendData(taData.getText(), cbKeepConn.isSelected());
                 JOptionPane.showMessageDialog(this, "Success");
+                
             }
             catch(Exception err){
                 JOptionPane.showMessageDialog(this, "Error");
@@ -67,7 +89,7 @@ public class Gui extends JFrame implements ActionListener{
     public void initComponents(){
         lbIp = new JLabel("IP: ");
         lbPort = new JLabel("Port: ");
-        tfIp = new JTextField("", 15);
+        tfIp = new JTextField("", 10);
         tfPort = new JTextField("", 6);
 
         taData = new JTextArea(30, 40);
@@ -75,6 +97,9 @@ public class Gui extends JFrame implements ActionListener{
 
         btSend = new JButton("Send");
         btSend.addActionListener(this);
+
+        cbKeepConn = new JCheckBox("Keep Connection");
+
     }
 
 }
