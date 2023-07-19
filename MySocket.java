@@ -1,4 +1,7 @@
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,9 +32,12 @@ public class MySocket {
     // Create a socket
     private boolean connect() {
         try{
-            this.socket = new Socket(getIp(), getPort());
+            this.socket = new Socket();
+            socket.connect(new InetSocketAddress(getIp(), getPort()), 5000);
             return true;
-        }catch (Exception e){
+        }
+        catch (Exception e)
+        {
             return false;
         }
     } 

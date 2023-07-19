@@ -96,7 +96,9 @@ public class Gui extends JFrame implements ActionListener{
                     this.socket = new MySocket(tfIp.getText(), Integer.parseInt(tfPort.getText()));
                 }
                 // Send data
-                this.socket.sendData(taData.getText(), cbKeepConn.isSelected());
+                if (this.socket.sendData(taData.getText(), cbKeepConn.isSelected()) == false){
+                    JOptionPane.showMessageDialog(this, "Error");
+                }
                 //JOptionPane.showMessageDialog(this, "Success");
             }
             catch(Exception err){
@@ -143,7 +145,7 @@ public class Gui extends JFrame implements ActionListener{
                 ;
             }
             if (socket != null){
-                if ((data = socket.receiveData()) != null){
+                if ((data = socket.receiveData()) != null && (data.equals("") == false)){
                     taServerData.setText(taServerData.getText() + "\n" + data);
                 }
             }
