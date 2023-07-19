@@ -3,6 +3,7 @@ import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
 import javax.swing.JPanel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
@@ -12,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.Container;
 import java.awt.FlowLayout;
-import java.awt.BorderLayout;
 
 public class Gui extends JFrame implements ActionListener{
     
@@ -21,11 +21,15 @@ public class Gui extends JFrame implements ActionListener{
     private JTextField tfIp;
     private JTextField tfPort;
 
+    private JTextArea taServerData;
+    private JScrollPane scrollServer;
+
     private JCheckBox cbKeepConn;
 
     private JTextArea taData;
     private JScrollPane scroll;
     private JButton btSend;
+    private JButton btLimpar;
 
     private MySocket socket;
 
@@ -36,7 +40,9 @@ public class Gui extends JFrame implements ActionListener{
 
         initComponents();
         Container container = getContentPane();
-        container.setLayout(new BorderLayout());
+        container.setLayout(null);
+
+        setLayout(null);
 
         JPanel north = new JPanel(new FlowLayout());
         north.add(lbIp);
@@ -46,16 +52,30 @@ public class Gui extends JFrame implements ActionListener{
         north.add(btSend);
         north.add(cbKeepConn);
 
-        container.add(north, BorderLayout.NORTH);
+        north.setBounds(0, 10, 480, 40);
+        add(north);
         
         JPanel center = new JPanel(new FlowLayout());
         center.add(scroll);
-        container.add(center, BorderLayout.CENTER);
+    
+        center.setBounds(0, 50, 480, 250);
+        add(center);
+
+        JPanel serverSide = new JPanel(new FlowLayout());
+        serverSide.add(scrollServer);
+
+        serverSide.setBounds(0, 350, 480, 250);
+        add(serverSide);
+
+        btLimpar.setBounds(385, 310, 75, 25);
+        add(btLimpar);
 
         setVisible(true);
-        setSize(500,600);
+        setSize(500,650);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
+
+        receive.start();
 
     }
 
@@ -77,29 +97,64 @@ public class Gui extends JFrame implements ActionListener{
                 }
                 // Send data
                 this.socket.sendData(taData.getText(), cbKeepConn.isSelected());
-                JOptionPane.showMessageDialog(this, "Success");
-                
+                //JOptionPane.showMessageDialog(this, "Success");
             }
             catch(Exception err){
                 JOptionPane.showMessageDialog(this, "Error");
             }
         }
+        if (e.getSource() == btLimpar){
+            clearServerData();
+        }
     }
 
-    public void initComponents(){
+    private void initComponents(){
         lbIp = new JLabel("IP: ");
         lbPort = new JLabel("Port: ");
         tfIp = new JTextField("", 10);
         tfPort = new JTextField("", 6);
 
-        taData = new JTextArea(30, 40);
+        taData = new JTextArea(15, 40);
         scroll = new JScrollPane(taData);
 
         btSend = new JButton("Send");
         btSend.addActionListener(this);
 
+        btLimpar = new JButton("Clear");
+        btLimpar.addActionListener(this);
+
+        taServerData = new JTextArea(15, 40);
+        taServerData.setEditable(false);
+        DefaultCaret cartet = (DefaultCaret)taServerData.getCaret();
+        cartet.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        scrollServer = new JScrollPane(taServerData);
+
         cbKeepConn = new JCheckBox("Keep Connection");
 
     }
 
+    // Thread
+    private Thread receive = new Thread(() -> {
+        String data;
+        while (true){
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+                ;
+            }
+            if (socket != null){
+                if ((data = socket.receiveData()) != null){
+                    taServerData.setText(taServerData.getText() + "\n" + data);
+                }
+            }
+        }
+    });
+
+    // Clear JTextArea of Server Data
+    private void clearServerData(){
+        taServerData.setText("");
+    }
+
 }
+
+

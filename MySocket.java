@@ -1,5 +1,7 @@
 import java.net.Socket;
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class MySocket {
     
@@ -7,16 +9,19 @@ public class MySocket {
     private int port;
     private Socket socket;
     private PrintWriter pw;
+    private BufferedReader reader;
 
     // CONSTRUCTORS
     public MySocket(String ip){
         socket = null;
+        reader = null;
         setIp(ip);
         setPort(9100);
     }
 
     public MySocket(String ip, int port){
         socket = null;
+        reader = null;
         setIp(ip);
         setPort(port);
     }
@@ -43,6 +48,7 @@ public class MySocket {
                     return false;
                 }
                 this.pw = new PrintWriter(socket.getOutputStream(), true);
+                createReader();
             }
             this.pw.println(data);
             if (keepConn == false){
@@ -51,6 +57,33 @@ public class MySocket {
             return true;
         }catch (Exception e){
             return false;
+        }
+    }
+
+    // Create reader
+    private void createReader(){
+        try {
+            this.reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
+        } catch (Exception e) {
+            this.reader = null;
+        }
+        
+    }
+
+    // Return data
+    public String receiveData(){
+        try{
+            if(reader == null){
+                createReader();
+            }
+            if (reader.ready()){
+                return reader.readLine();
+            }
+            else{
+                return null;
+            }
+        }catch(Exception e){
+            return "";
         }
     }
 
